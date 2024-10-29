@@ -6,7 +6,8 @@ import time
 class StellarWalletApp:
     def __init__(self):
         self.current_keypair = None
-        ft.app(target=self.main)  # Definindo vista em coluna
+        self.is_private_key_visible = False
+        ft.app(target=self.main)
 
     def copy_to_clipboard(self, e, text):
         e.page.set_clipboard(text)
@@ -17,6 +18,25 @@ class StellarWalletApp:
                 action="OK"
             )
         )
+    def get_hidden_private_key(self):
+        """Retorna a chave privada oculta com 56 caracteres de '•'."""
+        return "•" * 56
+    
+    def update_private_key_display(self):
+        """Atualiza o texto da chave privada com base no estado de visibilidade."""
+        if self.current_keypair:  # Verifica se current_keypair não é None
+            self.private_key_text.value = (
+                self.current_keypair.secret if self.is_private_key_visible else self.get_hidden_private_key()
+            )
+        else:
+            self.private_key_text.value = self.get_hidden_private_key()  # Ou você pode definir um valor padrão
+
+    def update_visibility_icon(self):
+        """Atualiza o ícone do botão de visibilidade com base no estado."""
+        self.view_private_key_btn.icon = (
+            ft.icons.VISIBILITY_OFF if self.is_private_key_visible else ft.icons.VISIBILITY
+        )
+
 
     def create_wallet(self, e):
         try:
@@ -26,11 +46,12 @@ class StellarWalletApp:
             time.sleep(1)
             
             self.current_keypair = Keypair.random()
-
+            self.is_private_key_visible = False
             self.public_key_text.value = self.current_keypair.public_key
-            # self.private_key_text.value = self.current_keypair.secret
-            self.private_key_text.value = "•" * 56
+            self.update_private_key_display()
+            self.update_visibility_icon()
 
+            # Exibe os cartões das chaves e habilita o botão de verificação de saldo
             self.public_key_card.visible = True
             self.private_key_card.visible = True
             self.check_balance_btn.disabled = False
@@ -38,13 +59,32 @@ class StellarWalletApp:
             
             e.page.update()
             
-            e.page.open(
-                ft.SnackBar(
-                    content=ft.Text("Carteira criada com sucesso!", color="white"),
-                    bgcolor=ft.colors.SURFACE_VARIANT,
-                    action="OK"
+
+            # Gera o mnemonic usando o método da chave
+            mnemonic_phrase = self.current_keypair.generate_mnemonic_phrase()
+            if mnemonic_phrase:
+                e.page.open(
+                    ft.SnackBar(
+                        content=ft.Text(f"Mnemonic gerado: {mnemonic_phrase}", color="white"),
+                        bgcolor=ft.colors.SURFACE_VARIANT,
+                        action="OK"
+                    )
                 )
-            )
+            else:
+                e.page.open(
+                    ft.SnackBar(
+                        content=ft.Text("Falha ao gerar o mnemonic", color="white"),
+                        bgcolor=ft.colors.SURFACE_VARIANT,
+                        action="OK"
+                    )
+                )
+            # e.page.open(
+            #     ft.SnackBar(
+            #         content=ft.Text("Carteira criada com sucesso!", color="white"),
+            #         bgcolor=ft.colors.SURFACE_VARIANT,
+            #         action="OK"
+            #     )
+            # )
             
         except Exception as ex:
             self.loading.visible = False
@@ -58,17 +98,12 @@ class StellarWalletApp:
             )
 
     def toggle_private_key_visibility(self, e):
-    # Verifica se o keypair atual existe antes de acessar "secret"
+        """Alterna o estado de visibilidade da chave privada."""
         if self.current_keypair:
-            # Alterna entre mostrar a chave privada e exibir 56 pontos
-            if self.private_key_text.value == "•" * 56:
-                # Se a chave está oculta, exibe o valor real
-                self.private_key_text.value = self.current_keypair.secret
-                self.view_private_key_btn.icon = ft.icons.VISIBILITY_OFF
-            else:
-                # Se a chave está visível, oculta com pontos
-                self.private_key_text.value = "•" * 56
-                self.view_private_key_btn.icon = ft.icons.VISIBILITY
+            self.is_private_key_visible = not self.is_private_key_visible
+            self.update_private_key_display()
+            self.update_visibility_icon()
+            e.page.update()
         
         # Atualiza a interface
         e.page.update()
@@ -149,8 +184,9 @@ class StellarWalletApp:
         page.theme_mode = ft.ThemeMode.DARK
         page.padding = 0
         page.window.width = 430  # Largura padrão para mobile
-        page.window.height = 932  # Altura padrão para mobile
+        page.window.height = 732  # Altura padrão para mobile
         # page.scroll = "auto"  # Habilitando scroll na página
+        page.window.resizable = False
         
         # Tema escuro moderno
         page.theme = ft.Theme(
@@ -290,6 +326,7 @@ class StellarWalletApp:
                                         on_click=lambda e: self.copy_private_key(e),
                                     ),
                                 ],
+                                alignment=ft.MainAxisAlignment.END,  # Alinhando para a direita
                             ),
                         ],
                         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,

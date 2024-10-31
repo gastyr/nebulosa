@@ -1,15 +1,13 @@
 import flet as ft
-from stellar_sdk import Keypair, Server
-from stellar_sdk.exceptions import NotFoundError
-import time
-from app.ui.components import Header, KeyCards
+from app.ui.components.header import Header
+from app.ui.components.balance_card import BalanceCard
 
-class WalletPage:
+class BalancePage:
     def __init__(self, page: ft.Page):
         self.page = page
         # self.wallet_app = wallet_app
         self.header = Header(page.window.width)
-        self.key_cards = KeyCards(self)
+        self.balance_card = BalanceCard()
         
     def build(self):
         return ft.Container(
@@ -19,16 +17,21 @@ class WalletPage:
                     ft.Container(
                         content=ft.Column(
                             controls=[
+                                ft.TextField(
+                                    label="Chave Pública",
+                                    hint_text="Digite sua chave pública Stellar",
+                                    prefix_icon=ft.icons.KEY,
+                                    on_submit=self.load_balance,
+                                ),
                                 ft.ElevatedButton(
-                                    "Gerar Nova Carteira",
+                                    "Verificar Saldo",
                                     style=ft.ButtonStyle(
                                         color=ft.colors.WHITE,
                                         bgcolor=ft.colors.INDIGO_400,
                                     ),
-                                    on_click=self.generate_wallet,
+                                    on_click=self.load_balance,
                                 ),
-                                self.key_cards.public_key_card,
-                                self.key_cards.private_key_card,
+                                self.balance_card.container,
                             ],
                             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                         ),
@@ -40,9 +43,9 @@ class WalletPage:
             width=self.page.window.width,
         )
     
-    def generate_wallet(self, e):
-        # Aqui você implementaria a lógica de geração da carteira Stellar
-        # Por exemplo, usando stellar_sdk
-        self.key_cards.public_key_card.visible = True
-        self.key_cards.private_key_card.visible = True
+    def load_balance(self, e):
+        # Aqui você implementaria a lógica para carregar o saldo da carteira
+        # Usando stellar_sdk para consultar a rede
+        self.balance_card.container.visible = True
+        self.balance_card.balance_amount.value = "1000.00"  # Exemplo
         self.page.update()

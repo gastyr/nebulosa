@@ -3,6 +3,7 @@ import flet as ft
 class KeyCards:
     def __init__(self, wallet_page):
         self.wallet_page = wallet_page
+        self.is_private_key_visible = False
         self.setup_components()
 
     def setup_components(self):
@@ -23,7 +24,7 @@ class KeyCards:
         self.view_private_key_btn = ft.IconButton(
             icon=ft.icons.VISIBILITY,
             icon_color=ft.colors.INDIGO_200,
-            on_click=self.wallet_page.toggle_private_key_visibility,
+            on_click=self.toggle_private_key_visibility,
         )
 
         self.public_key_card = self.create_public_key_card()
@@ -85,3 +86,27 @@ class KeyCards:
             bgcolor=ft.colors.with_opacity(0.1, ft.colors.SURFACE_VARIANT),
             visible=False,
         )
+    
+    def toggle_private_key_visibility(self, e):
+        """Alterna o estado de visibilidade da chave privada."""
+        if self.current_keypair:
+            self.is_private_key_visible = not self.is_private_key_visible
+            self.update_private_key_display()
+            self.update_visibility_icon()
+            e.page.update()
+        
+        # Atualiza a interface
+        e.page.update()
+
+    def update_private_key_display(self):
+        """Atualiza o texto da chave privada com base no estado de visibilidade."""
+        if self.current_keypair:  # Verifica se current_keypair não é None
+            self.private_key_text.value = (
+                self.current_keypair.secret if self.is_private_key_visible else self.get_hidden_private_key()
+            )
+        else:
+            self.private_key_text.value = self.get_hidden_private_key()  # Ou você pode definir um valor padrão
+
+    def get_hidden_private_key(self):
+        """Retorna a chave privada oculta com 56 caracteres de '•'."""
+        return "•" * 56

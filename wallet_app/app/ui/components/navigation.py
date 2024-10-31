@@ -5,35 +5,48 @@ class Navigation:
         self.page = page
         self.wallet_page = wallet_page
         self.current_index = 0
+        self.setup_pages()
+
+    def setup_pages(self):
+        from app.ui.pages.wallet_page import WalletPage
+        from app.ui.pages.balance_page import BalancePage
+        from app.ui.pages.transfer_page import TransferPage
+        
+        self.pages = [
+            WalletPage(self.page),
+            BalancePage(self.page),
+            TransferPage(self.page),
+        ]
 
     def build(self):
-        return ft.Pagelet(
-            navigation_bar=self.create_navigation_bar(),
-            content=self.wallet_page.create_wallet_content(),
-            expand=True,
+        return ft.Column(
+            controls=[
+                self.create_navigation_bar(),
+                self.pages[self.current_index].build(),
+            ],
+            spacing=0,
         )
 
     def create_navigation_bar(self):
-        return ft.CupertinoNavigationBar(
-            bgcolor=ft.colors.BLUE_GREY_900,
-            inactive_color=ft.colors.BLUE_GREY_300,
-            active_color=ft.colors.BLUE_500,
+        return ft.NavigationBar(
+            bgcolor=ft.colors.SURFACE_VARIANT,
+            selected_index=self.current_index,
             on_change=self.change_tab,
             destinations=[
-                self.create_nav_destination(
-                    ft.icons.ACCOUNT_BALANCE_WALLET_OUTLINED,
-                    ft.icons.ACCOUNT_BALANCE_WALLET,
-                    "Criar Carteira"
+                ft.NavigationDestination(
+                    icon=ft.icons.ACCOUNT_BALANCE_WALLET_OUTLINED,
+                    selected_icon=ft.icons.ACCOUNT_BALANCE_WALLET,
+                    label="Criar Carteira",
                 ),
-                self.create_nav_destination(
-                    ft.icons.BALANCE_OUTLINED,
-                    ft.icons.BALANCE,
-                    "Saldo"
+                ft.NavigationDestination(
+                    icon=ft.icons.BALANCE_OUTLINED,
+                    selected_icon=ft.icons.BALANCE,
+                    label="Saldo",
                 ),
-                self.create_nav_destination(
-                    ft.icons.SEND_OUTLINED,
-                    ft.icons.SEND,
-                    "Transferir"
+                ft.NavigationDestination(
+                    icon=ft.icons.SEND_OUTLINED,
+                    selected_icon=ft.icons.SEND,
+                    label="Transferir",
                 ),
             ],
         )
@@ -47,10 +60,5 @@ class Navigation:
 
     def change_tab(self, e):
         self.current_index = e.control.selected_index
-        contents = [
-            self.wallet_page.create_wallet_content(),
-            self.wallet_page.balance_content(),
-            self.wallet_page.transfer_content()
-        ]
-        e.control.parent.content = contents[self.current_index]
+        self.page.controls[0].controls[1] = self.pages[self.current_index].build()
         self.page.update()

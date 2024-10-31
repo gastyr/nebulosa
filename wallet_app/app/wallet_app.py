@@ -1,6 +1,5 @@
 import flet as ft
-from .ui.pages import WalletPage
-from .ui.components import Navigation
+from app.ui.components import Navigation
 
 class StellarWalletApp:
     def __init__(self):
@@ -9,8 +8,8 @@ class StellarWalletApp:
 
     def main(self, page: ft.Page):
         self.setup_page_config(page)
-        wallet_page = WalletPage(page, self)
-        navigation = Navigation(page, wallet_page)
+        # wallet_page = WalletPage(page, self)
+        navigation = Navigation(page, self)
         page.add(navigation.build())
         page.update()
 

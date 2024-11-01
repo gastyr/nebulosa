@@ -1,9 +1,8 @@
 import flet as ft
 
 class Navigation:
-    def __init__(self, page, wallet_page):
+    def __init__(self, page):
         self.page = page
-        self.wallet_page = wallet_page
         self.current_index = 0
         self.setup_pages()
 
@@ -20,11 +19,25 @@ class Navigation:
 
     def build(self):
         return ft.Column(
-            controls=[
-                self.create_navigation_bar(),
-                self.pages[self.current_index].build(),
-            ],
+            expand=True,
             spacing=0,
+            controls=[
+                ft.Container(
+                    content=self.create_navigation_bar(),
+                    bgcolor=ft.colors.SURFACE_VARIANT,
+                    padding=0,
+                ),
+                ft.Container(
+                    content=ft.Column(
+                        controls=[self.pages[self.current_index].build()],
+                        scroll=ft.ScrollMode.HIDDEN,
+                        expand=True,
+                        spacing=0,
+                    ),
+                    expand=True,
+                    padding=0,
+                ),
+            ],
         )
 
     def create_navigation_bar(self):
@@ -33,17 +46,17 @@ class Navigation:
             selected_index=self.current_index,
             on_change=self.change_tab,
             destinations=[
-                ft.NavigationDestination(
+                ft.NavigationBarDestination(
                     icon=ft.icons.ACCOUNT_BALANCE_WALLET_OUTLINED,
                     selected_icon=ft.icons.ACCOUNT_BALANCE_WALLET,
                     label="Criar Carteira",
                 ),
-                ft.NavigationDestination(
+                ft.NavigationBarDestination(
                     icon=ft.icons.BALANCE_OUTLINED,
                     selected_icon=ft.icons.BALANCE,
                     label="Saldo",
                 ),
-                ft.NavigationDestination(
+                ft.NavigationBarDestination(
                     icon=ft.icons.SEND_OUTLINED,
                     selected_icon=ft.icons.SEND,
                     label="Transferir",
@@ -51,14 +64,8 @@ class Navigation:
             ],
         )
 
-    def create_nav_destination(self, icon, selected_icon, label):
-        return ft.NavigationBarDestination(
-            icon=icon,
-            selected_icon=selected_icon,
-            label=label
-        )
-
     def change_tab(self, e):
         self.current_index = e.control.selected_index
-        self.page.controls[0].controls[1] = self.pages[self.current_index].build()
+        page_content = self.page.controls[0].controls[1].content
+        page_content.controls = [self.pages[self.current_index].build()]
         self.page.update()

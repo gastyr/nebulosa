@@ -3,13 +3,11 @@ from app.ui.components import Navigation
 
 class StellarWalletApp:
     def __init__(self):
-        self.current_keypair = None
         ft.app(target=self.main)
 
     def main(self, page: ft.Page):
         self.setup_page_config(page)
-        # wallet_page = WalletPage(page, self)
-        navigation = Navigation(page, self)
+        navigation = Navigation(page)
         page.add(navigation.build())
         page.update()
 
@@ -19,7 +17,6 @@ class StellarWalletApp:
         page.padding = 0
         page.window.width = 430
         page.window.height = 732
-        page.scroll = ft.ScrollMode.ALWAYS
         page.window.resizable = False
         page.theme = self.create_theme()
 

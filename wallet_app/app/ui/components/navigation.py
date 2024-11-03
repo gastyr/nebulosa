@@ -26,6 +26,7 @@ class Navigation:
                     content=self.create_navigation_bar(),
                     bgcolor=ft.colors.SURFACE_VARIANT,
                     padding=0,
+                    height=65,
                 ),
                 ft.Container(
                     content=ft.Column(
@@ -45,6 +46,7 @@ class Navigation:
             bgcolor=ft.colors.SURFACE_VARIANT,
             selected_index=self.current_index,
             on_change=self.change_tab,
+            height=65,
             destinations=[
                 ft.NavigationBarDestination(
                     icon=ft.icons.ACCOUNT_BALANCE_WALLET_OUTLINED,
@@ -53,7 +55,7 @@ class Navigation:
                 ),
                 ft.NavigationBarDestination(
                     icon=ft.icons.BALANCE_OUTLINED,
-                    selected_icon=ft.icons.BALANCE,
+                    selected_icon=ft.icons.ACCOUNT_BALANCE,
                     label="Saldo",
                 ),
                 ft.NavigationBarDestination(

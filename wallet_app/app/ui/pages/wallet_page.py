@@ -8,8 +8,11 @@ class WalletPage:
         self.page = page
         self.header = Header(page.window.width)
         self.key_cards = KeyCards(self)
-        self.loading = self.create_loading_ring()
         self.current_keypair = None
+        self.setup_components()
+
+    def setup_components(self):
+        self.loading = self.create_loading_ring()
         self.mnemonic_container = self.create_mnemonic_container()
 
     def create_loading_ring(self):
@@ -22,11 +25,9 @@ class WalletPage:
         )
     
     def create_mnemonic_container(self):
-        """Cria um container invisível para exibir o mnemonic."""
         return ft.Container(
-            visible=False,  # Inicialmente invisível
+            visible=False,
             alignment=ft.alignment.center,
-            # padding=ft.padding.all(16)
         )
 
     def create_content_container(self):
@@ -40,6 +41,7 @@ class WalletPage:
                     self.mnemonic_container
                 ],
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                spacing=20
             ),
             padding=20,
         )
@@ -60,12 +62,11 @@ class WalletPage:
                         animation_duration=500,
                         shape=ft.RoundedRectangleBorder(radius=10),
                     ),
-                    width=self.page.window.width - 40 if self.page.window.width else self.page.width,
+                    width=self.page.window.width or 0 - 40,
                     on_click=self.create_wallet
                 )
         
     def build(self):
-        """Constrói a página completa"""
         return ft.Container(
             content=ft.Column(
                 controls=[
@@ -78,12 +79,10 @@ class WalletPage:
         )
     
     async def create_wallet_async(self):
-        """Função assíncrona para criar a carteira"""
         await asyncio.sleep(1)
         return Keypair.random()
 
     async def _async_wallet_creation(self, e):
-        """Função assíncrona real para criar a carteira e atualizar a interface"""
         try:
             self.current_keypair = await self.create_wallet_async()
             self.key_cards.update_public_key(self.current_keypair.public_key)
@@ -115,7 +114,6 @@ class WalletPage:
             self.page.update()
     
     def create_wallet(self, e):
-        """Handler para criação da carteira"""
         e.control.disabled = True
         self.loading.visible = True
         self.page.update()

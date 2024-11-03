@@ -1,65 +1,106 @@
 import flet as ft
-from app.ui.components import Header, BalanceCard
-from stellar_sdk import Server, Asset
+from app.ui.components import Header, BalanceDisplay
+from stellar_sdk import Server
 from stellar_sdk.exceptions import NotFoundError, BadResponseError
 import asyncio
+from typing import Optional, cast
 
 class BalancePage:
     def __init__(self, page: ft.Page):
         self.page = page
         self.header = Header(page.window.width)
+        self.server = Server("https://horizon.stellar.org")
         self.setup_components()
-        self.server = Server("https://horizon-testnet.stellar.org")
         
     def setup_components(self):
-        # Input field para a chave pública
-        self.public_key_field = ft.TextField(
+        self.public_key_field = self.create_public_key_field()
+        self.verify_button = self.create_verify_button()
+        self.loading = self.create_loading_container()
+        self.error_container = self.create_error_container()
+        self.balance_container = self.create_balance_container()
+    
+    def create_loading_container(self):
+        return ft.Container(
+            content=ft.ProgressRing(
+                width=40,
+                height=40,
+                color=ft.colors.INDIGO_400,
+            ),
+            visible=False,
+        )
+    
+    def create_error_container(self) -> ft.Container:
+        return ft.Container(
+            content=ft.Text(
+                color=ft.colors.RED_400,
+                size=12,
+            ),
+            visible=False,
+        )
+    
+    def update_error_message(self,
+                             message: Optional[str] = None,
+                             show: Optional[bool] = None):
+        text_control = cast(ft.Text, self.error_container.content)
+        if message is not None:
+            text_control.value = message
+        if show is not None:
+            self.error_container.visible = show
+    
+    def create_balance_container(self):
+        return ft.Container(
+            content=ft.Column(
+                controls=[],
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                spacing=10,
+            ),
+            visible=False,
+        )
+    
+    def create_public_key_field(self):
+        return ft.TextField(
             label="Chave Pública",
             hint_text="Digite sua chave pública Stellar",
             prefix_icon=ft.icons.KEY,
             on_submit=self.load_balance,
             border_color=ft.colors.INDIGO_400,
-            text_size=14,
+            text_size=12,
         )
-        
-        # Botão de verificação com estado de loading
-        self.verify_button = ft.ElevatedButton(
+    
+    def create_verify_button(self):
+        return ft.ElevatedButton(
             content=ft.Row(
                 controls=[
                     ft.Icon(ft.icons.ACCOUNT_BALANCE),
-                    ft.Text("Verificar Saldo", size=14),
+                    ft.Text("Verificar Saldo", size=12),
                 ],
                 alignment=ft.MainAxisAlignment.CENTER,
             ),
             style=ft.ButtonStyle(
                 color=ft.colors.WHITE,
                 bgcolor=ft.colors.INDIGO_400,
+                padding=20,
+                animation_duration=500,
+                shape=ft.RoundedRectangleBorder(radius=10),
             ),
             on_click=self.load_balance,
             width=200,
         )
-        
-        # Progress bar para feedback visual
-        self.progress_bar = ft.ProgressBar(
-            color=ft.colors.INDIGO_400,
-            bgcolor=ft.colors.INDIGO_100,
-            visible=False,
-        )
-        
-        # Mensagem de erro
-        self.error_text = ft.Text(
-            color=ft.colors.RED_400,
-            size=14,
-            visible=False,
-        )
-        
-        # Cards de saldo
-        self.balance_cards = []
-        self.no_balance_text = ft.Text(
-            "Nenhum saldo encontrado",
-            color=ft.colors.GREY_400,
-            size=14,
-            visible=False,
+
+    def create_content_container(self):
+        return ft.Container(
+            content=ft.Column(
+                controls=[
+                    self.public_key_field,
+                    self.verify_button,
+                    self.loading,
+                    self.error_container,
+                    self.balance_container,
+                ],
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                spacing=20,
+            ),
+            padding=20,
         )
 
     def build(self):
@@ -67,76 +108,97 @@ class BalancePage:
             content=ft.Column(
                 controls=[
                     self.header.build(),
-                    ft.Container(
-                        content=ft.Column(
-                            controls=[
-                                self.public_key_field,
-                                self.verify_button,
-                                self.progress_bar,
-                                self.error_text,
-                                self.no_balance_text,
-                                ft.Column(controls=self.balance_cards),
-                            ],
-                            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                            spacing=20,
-                        ),
-                        padding=20,
-                    ),
+                    self.create_content_container(),
                 ],
                 spacing=0,
             ),
             width=self.page.window.width,
         )
 
-    async def fetch_account_data(self, public_key):
+    def load_balance(self, e):
+        public_key = self.public_key_field.value
+        if not public_key:
+                self.update_error_message("Por favor, insira uma chave pública.", True)
+                self.balance_container.visible = False
+                self.loading.visible = False
+                self.page.update()
+                return
+        e.control.disabled = True
+        self.update_error_message(show=False)
+        self.balance_container.visible = False
+        self.loading.visible = True
+        self.page.update()
+        asyncio.run(self.account_balance(e, public_key))
+
+    def process_balance_entry(self, balance):
+        asset_type = balance.get('asset_type', 'native')
+        processed_balance = {
+            'balance': balance.get('balance', '0'),
+            'asset_type': asset_type,
+            'asset_code': '',
+            'asset_issuer': '',
+            'liquidity_pool_id': ''
+        }
+
+        if asset_type == 'native':
+            processed_balance['asset_code'] = 'XLM'
+        elif asset_type == 'liquidity_pool_shares':
+            processed_balance['asset_code'] = 'Pool Shares'
+            processed_balance['liquidity_pool_id'] = balance.get('liquidity_pool_id', '')
+        else:
+            processed_balance['asset_code'] = balance.get('asset_code', '')
+            processed_balance['asset_issuer'] = balance.get('asset_issuer', '')
+
+        return processed_balance
+
+    def process_balances(self, balances):
+        processed_balances = [self.process_balance_entry(balance) for balance in balances]
+        type_order = {
+            'native': 0,
+            'credit_alphanum4': 1,
+            'credit_alphanum12': 1,
+            'liquidity_pool_shares': 2
+        }
+        processed_balances.sort(
+            key=lambda x: (
+                type_order.get(x['asset_type'], 3),
+                x.get('asset_code', '')
+            )
+        )
+        return processed_balances
+        
+    async def account_balance(self, e, public_key: str):
         try:
-            account = await self.server.accounts().account_id(public_key).call()
-            return account['balances']
+            account = await self._fetch_account_data(public_key)
+            if not account.get("balances"):
+                self.update_error_message("Nenhum saldo encontrado", True)
+                return
+            processed_balances = self.process_balances(account["balances"])
+            balance_display = BalanceDisplay(processed_balances)
+            self.balance_container.content = balance_display.build()
+            self.balance_container.visible = True
+            self.page.update()
+            
+        except Exception as ex:
+            self.page.open(
+                ft.SnackBar(
+                    content=ft.Text(f"Erro ao consultar saldo: {str(ex)}", color="white"),
+                    bgcolor=ft.colors.SURFACE_VARIANT,
+                    action="OK"
+                )
+            )
+        finally:
+            e.control.disabled = False
+            self.loading.visible = False
+            self.page.update()
+
+    async def _fetch_account_data(self, public_key):
+        try:
+            await asyncio.sleep(0.5)
+            return self.server.accounts().account_id(public_key).call()
         except NotFoundError:
             raise ValueError("Conta não encontrada. Verifique a chave pública.")
         except BadResponseError:
             raise ValueError("Erro ao conectar com a rede Stellar. Tente novamente.")
         except Exception as e:
             raise ValueError(f"Erro inesperado: {str(e)}")
-
-    def create_balance_card(self, balance_data):
-        asset_code = balance_data.get('asset_code', 'XLM')
-        balance = balance_data.get('balance', '0')
-        
-        return BalanceCard(
-            asset_code=asset_code,
-            balance=balance,
-            asset_type=balance_data.get('asset_type', 'native'),
-            asset_issuer=balance_data.get('asset_issuer', '')
-        ).build()
-
-    async def load_balance(self, e):
-        # Reset UI state
-        self.error_text.visible = False
-        self.progress_bar.visible = True
-        self.no_balance_text.visible = False
-        self.balance_cards.clear()
-        self.page.update()
-
-        try:
-            public_key = self.public_key_field.value
-            if not public_key:
-                raise ValueError("Por favor, insira uma chave pública.")
-
-            balances = await self.fetch_account_data(public_key)
-            
-            if not balances:
-                self.no_balance_text.visible = True
-            else:
-                for balance in balances:
-                    self.balance_cards.append(self.create_balance_card(balance))
-
-        except ValueError as ve:
-            self.error_text.value = str(ve)
-            self.error_text.visible = True
-        except Exception as e:
-            self.error_text.value = "Erro inesperado ao carregar saldo."
-            self.error_text.visible = True
-        finally:
-            self.progress_bar.visible = False
-            self.page.update()

@@ -49,7 +49,7 @@ class KeyCards:
                     self.public_key_text,
                 ],
             ),
-            padding=15,
+            padding=10,
             border_radius=15,
             bgcolor=ft.colors.with_opacity(0.1, ft.colors.SURFACE_VARIANT),
         )
@@ -74,7 +74,7 @@ class KeyCards:
                     self.private_key_text,
                 ],
             ),
-            padding=15,
+            padding=10,
             border_radius=15,
             bgcolor=ft.colors.with_opacity(0.1, ft.colors.SURFACE_VARIANT),
         )

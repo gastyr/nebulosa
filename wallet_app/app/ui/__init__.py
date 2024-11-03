@@ -1,4 +1,4 @@
-from .components import Header, BalanceCard, KeyCards, Navigation
+from .components import Header, BalanceDisplay, KeyCards, Navigation
 from .pages import WalletPage
 
-__all__ = ["WalletPage", "Header", "BalanceCard", "KeyCards", "Navigation"]
+__all__ = ["WalletPage", "Header", "BalanceDisplay", "KeyCards", "Navigation"]

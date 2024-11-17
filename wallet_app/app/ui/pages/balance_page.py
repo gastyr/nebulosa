@@ -1,9 +1,22 @@
 import flet as ft
 from app.ui.components import Header, BalanceDisplay
-from stellar_sdk import Server
+from stellar_sdk import Server, Keypair
 from stellar_sdk.exceptions import NotFoundError, BadResponseError
 import asyncio
 from typing import Optional, cast
+from enum import Enum
+from dataclasses import dataclass
+
+class KeyType(Enum):
+    PUBLIC = "public"
+    PRIVATE = "private"
+    INVALID = "invalid"
+
+@dataclass
+class KeyValidationResult:
+    type: KeyType
+    public_key: str = ""
+    error_message: str = ""
 
 class BalancePage:
     def __init__(self, page: ft.Page):
@@ -13,7 +26,7 @@ class BalancePage:
         self.setup_components()
         
     def setup_components(self):
-        self.public_key_field = self.create_public_key_field()
+        self.key_field = self.create_key_field()
         self.verify_button = self.create_verify_button()
         self.loading = self.create_loading_container()
         self.error_container = self.create_error_container()
@@ -37,16 +50,16 @@ class BalancePage:
             ),
             visible=False,
         )
-    
+
     def update_error_message(self,
-                             message: Optional[str] = None,
-                             show: Optional[bool] = None):
+                           message: Optional[str] = None,
+                           show: Optional[bool] = None):
         text_control = cast(ft.Text, self.error_container.content)
         if message is not None:
             text_control.value = message
         if show is not None:
             self.error_container.visible = show
-    
+
     def create_balance_container(self):
         return ft.Container(
             content=ft.Column(
@@ -57,10 +70,10 @@ class BalancePage:
             visible=False,
         )
     
-    def create_public_key_field(self):
+    def create_key_field(self):
         return ft.TextField(
-            label="Chave Pública",
-            hint_text="Digite sua chave pública Stellar",
+            label="Chave Stellar",
+            hint_text="Digite sua chave Stellar",
             prefix_icon=ft.icons.KEY,
             on_submit=self.load_balance,
             border_color=ft.colors.INDIGO_400,
@@ -72,7 +85,7 @@ class BalancePage:
             content=ft.Row(
                 controls=[
                     ft.Icon(ft.icons.ACCOUNT_BALANCE),
-                    ft.Text("Verificar Saldo", size=12),
+                    ft.Text("Verificar Saldo", size=15),
                 ],
                 alignment=ft.MainAxisAlignment.CENTER,
             ),
@@ -91,7 +104,7 @@ class BalancePage:
         return ft.Container(
             content=ft.Column(
                 controls=[
-                    self.public_key_field,
+                    self.key_field,
                     self.verify_button,
                     self.loading,
                     self.error_container,
@@ -115,20 +128,55 @@ class BalancePage:
             width=self.page.window.width,
         )
 
+    def validate_key(self, key: str | None) -> KeyValidationResult:
+        if not key:
+            return KeyValidationResult(
+                type=KeyType.INVALID,
+                error_message="Por favor, insira uma chave Stellar"
+            )
+
+        try:
+            if key.startswith('G'):
+                Keypair.from_public_key(key)
+                return KeyValidationResult(
+                    type=KeyType.PUBLIC,
+                    public_key=key
+                )
+            elif key.startswith('S'):
+                keypair = Keypair.from_secret(key)
+                return KeyValidationResult(
+                    type=KeyType.PRIVATE,
+                    public_key=keypair.public_key
+                )
+            else:
+                return KeyValidationResult(
+                    type=KeyType.INVALID,
+                    error_message="Chave inválida"
+                )
+        except Exception as ex:
+            return KeyValidationResult(
+                type=KeyType.INVALID,
+                error_message=f"Chave inválida: {str(ex)}"
+            )
+
     def load_balance(self, e):
-        public_key = self.public_key_field.value
-        if not public_key:
-                self.update_error_message("Por favor, insira uma chave pública.", True)
-                self.balance_container.visible = False
-                self.loading.visible = False
-                self.page.update()
-                return
+        key = self.key_field.value
+        validation_result = self.validate_key(key)
+        
+        if validation_result.type == KeyType.INVALID:
+            self.update_error_message(validation_result.error_message, True)
+            self.balance_container.visible = False
+            self.loading.visible = False
+            self.page.update()
+            return
+
         e.control.disabled = True
         self.update_error_message(show=False)
         self.balance_container.visible = False
         self.loading.visible = True
         self.page.update()
-        asyncio.run(self.account_balance(e, public_key))
+        
+        asyncio.run(self.account_balance(e, validation_result.public_key))
 
     def process_balance_entry(self, balance):
         asset_type = balance.get('asset_type', 'native')
@@ -197,7 +245,7 @@ class BalancePage:
             await asyncio.sleep(0.5)
             return self.server.accounts().account_id(public_key).call()
         except NotFoundError:
-            raise ValueError("Conta não encontrada. Verifique a chave pública.")
+            raise ValueError("Conta não encontrada. Verifique a chave.")
         except BadResponseError:
             raise ValueError("Erro ao conectar com a rede Stellar. Tente novamente.")
         except Exception as e:

@@ -81,25 +81,35 @@ class BalancePage:
         )
     
     def create_verify_button(self):
-        return ft.ElevatedButton(
-            content=ft.Row(
-                controls=[
-                    ft.Icon(ft.icons.ACCOUNT_BALANCE),
-                    ft.Text("Verificar Saldo", size=15),
-                ],
-                alignment=ft.MainAxisAlignment.CENTER,
+        return  ft.Container(
+            ft.ElevatedButton(
+                content=ft.Row(
+                    controls=[
+                        ft.Icon(ft.icons.ACCOUNT_BALANCE, color="#FFD700"),
+                        ft.Text("Verificar Saldo",
+                                color="#FFFFFF",
+                                size=16,
+                                weight=ft.FontWeight.BOLD,),
+                    ],
+                    alignment=ft.MainAxisAlignment.CENTER,
+                ),
+                style=ft.ButtonStyle(
+                    padding=ft.padding.all(16),
+                    shape=ft.RoundedRectangleBorder(radius=12),
+                    elevation=5,
+                ),
+                on_click=self.load_balance,
+                width=200,
             ),
-            style=ft.ButtonStyle(
-                color=ft.colors.WHITE,
-                bgcolor=ft.colors.INDIGO_400,
-                padding=20,
-                animation_duration=500,
-                shape=ft.RoundedRectangleBorder(radius=10),
+            gradient=ft.LinearGradient(
+                begin=ft.alignment.center_left,
+                end=ft.alignment.center_right,
+                colors=["#4169E1", "#4B0082"],
             ),
-            on_click=self.load_balance,
-            width=200,
+            border_radius=12,
+            padding=2,
         )
-
+    
     def create_content_container(self):
         return ft.Container(
             content=ft.Column(

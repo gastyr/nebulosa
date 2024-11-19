@@ -23,6 +23,6 @@ class Header:
                 end=ft.alignment.bottom_center,
                 colors=[ft.colors.INDIGO_900, ft.colors.SURFACE],
             ),
-            padding=ft.padding.only(top=60, bottom=20),
+            padding=ft.padding.only(top=20, bottom=20),
             width=self.page_width,
         )

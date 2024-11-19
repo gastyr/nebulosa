@@ -47,24 +47,36 @@ class WalletPage:
         )
 
     def create_wallet_button(self):
-        return ft.ElevatedButton(
-                    content=ft.Row(
-                        controls=[
-                            ft.Icon(ft.icons.ADD),
-                            ft.Text("Criar Nova Carteira"),
-                        ],
-                        alignment=ft.MainAxisAlignment.CENTER,
-                    ),
-                    style=ft.ButtonStyle(
-                        color=ft.colors.WHITE,
-                        bgcolor=ft.colors.INDIGO_400,
-                        padding=20,
-                        animation_duration=500,
-                        shape=ft.RoundedRectangleBorder(radius=10),
-                    ),
-                    width=self.page.window.width or 0 - 40,
-                    on_click=self.create_wallet
-                )
+        return ft.Container(
+            content=ft.ElevatedButton(
+                content=ft.Row(
+                    controls=[
+                        ft.Icon(ft.icons.ADD, color="#FFD700"),
+                        ft.Text(
+                            "Criar Nova Carteira",
+                            color="#FFFFFF",
+                            size=16,
+                            weight=ft.FontWeight.BOLD,
+                        ),
+                    ],
+                    alignment=ft.MainAxisAlignment.CENTER,
+                ),
+                style=ft.ButtonStyle(
+                    padding=ft.padding.all(16),
+                    shape=ft.RoundedRectangleBorder(radius=12),
+                    elevation=5,
+                ),
+                on_click=self.create_wallet,
+            ),
+            gradient=ft.LinearGradient(
+                begin=ft.alignment.center_left,
+                end=ft.alignment.center_right,
+                colors=["#4169E1", "#4B0082"],
+            ),
+            border_radius=12,
+            padding=2,
+            width=self.page.window.width or 0 - 40,
+        )
         
     def build(self):
         return ft.Container(

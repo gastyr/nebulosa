@@ -8,12 +8,13 @@ class Header:
         return ft.Container(
             content=ft.Column(
                 controls=[
-                    ft.Icon(ft.icons.ACCOUNT_BALANCE_WALLET_ROUNDED, 
+                    ft.Icon(ft.icons.WALLET, 
                            size=50, 
-                           color=ft.colors.INDIGO_200),
-                    ft.Text("Stellar Wallet", 
+                           color="#FFD700"),
+                    ft.Text("Nebulosa", 
                            size=28, 
-                           weight=ft.FontWeight.BOLD),
+                           weight=ft.FontWeight.BOLD,
+                           color="#FFFFFF"),
                 ],
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 spacing=10,
@@ -21,7 +22,7 @@ class Header:
             gradient=ft.LinearGradient(
                 begin=ft.alignment.top_center,
                 end=ft.alignment.bottom_center,
-                colors=[ft.colors.INDIGO_900, ft.colors.SURFACE],
+                colors=[ "#4B0082", "transparent"],
             ),
             padding=ft.padding.only(top=20, bottom=20),
             width=self.page_width,

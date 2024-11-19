@@ -12,7 +12,7 @@ class StellarWalletApp:
         page.update()
 
     def setup_page_config(self, page: ft.Page):
-        page.title = "Stellar Wallet"
+        page.title = "Nebulosa"
         page.theme_mode = ft.ThemeMode.DARK
         page.padding = 0
         page.window.width = 430

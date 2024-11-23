@@ -1,0 +1,2 @@
+stellar-sdk==11.1.0
+flet==0.24.1

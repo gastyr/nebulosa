@@ -107,7 +107,7 @@ class TransferPage:
     def __init__(self, page: ft.Page):
         self.page = page
         self.header = Header(page.window.width)
-        self.server = Server("https://horizon-testnet.stellar.org")
+        self.server = Server("https://horizon.stellar.org")
         self.transaction_processor = TransactionProcessor(self.server)
         self.setup_components()
     

@@ -49,12 +49,12 @@ class Navigation:
             height=65,
             destinations=[
                 ft.NavigationBarDestination(
-                    icon=ft.icons.ACCOUNT_BALANCE_WALLET_OUTLINED,
-                    selected_icon=ft.icons.ACCOUNT_BALANCE_WALLET,
+                    icon=ft.icons.WALLET_OUTLINED,
+                    selected_icon=ft.icons.WALLET,
                     label="Criar Carteira",
                 ),
                 ft.NavigationBarDestination(
-                    icon=ft.icons.BALANCE_OUTLINED,
+                    icon=ft.icons.ACCOUNT_BALANCE_OUTLINED,
                     selected_icon=ft.icons.ACCOUNT_BALANCE,
                     label="Saldo",
                 ),

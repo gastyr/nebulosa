@@ -210,10 +210,10 @@ class SuccessDialog:
         self.hide()
 
     def _get_stellar_expert_url(self, hash: str) -> str:
-        return f"https://stellar.expert/explorer/testnet/tx/{hash}"
+        return f"https://stellar.expert/explorer/public/tx/{hash}"
     
     def _get_stellar_explorer_url(self, hash: str) -> str:
-        return f"https://testnet.stellarchain.io/transactions/{hash}"
+        return f"https://stellarchain.io/transactions/{hash}"
 
     def update(self, data: SuccessDialogData) -> None:
         self._message_text.value = data.message

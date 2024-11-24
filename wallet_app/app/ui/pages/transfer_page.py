@@ -1,5 +1,5 @@
 import flet as ft
-from app.ui.components import Header, SuccessDialog, SuccessDialogData
+from app.ui.components import Header, SuccessDialog, SuccessDialogData, StylizedButton
 from stellar_sdk import (
     Server, Keypair, TransactionBuilder, Network, Asset,
     Account, exceptions
@@ -210,36 +210,11 @@ class TransferPage:
         )
     
     def _create_transfer_button(self) -> ft.Container:
-        return ft.Container(
-            ft.ElevatedButton(
-                content=ft.Row(
-                    controls=[
-                        ft.Icon(ft.icons.SEND, color="#FFD700"),
-                        ft.Text(
-                            "Enviar",
-                            color="#FFFFFF",
-                            size=16,
-                            weight=ft.FontWeight.BOLD,
-                        ),
-                    ],
-                    alignment=ft.MainAxisAlignment.CENTER,
-                ),
-                style=ft.ButtonStyle(
-                    padding=ft.padding.all(16),
-                    shape=ft.RoundedRectangleBorder(radius=12),
-                    elevation=5,
-                ),
-                on_click=self._handle_transaction,
-                width=200,
-            ),
-            gradient=ft.LinearGradient(
-                begin=ft.alignment.center_left,
-                end=ft.alignment.center_right,
-                colors=["#4169E1", "#4B0082"],
-            ),
-            border_radius=12,
-            padding=2,
-        )
+        button = StylizedButton(ft.icons.SEND,
+                                "Enviar",
+                                self._handle_transaction,
+                                200)
+        return button.build()
 
     def _handle_operation_type_change(self, e):
         is_create_account = e.control.value == OperationType.CREATE_ACCOUNT.value

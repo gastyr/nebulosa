@@ -6,7 +6,6 @@ class MnemonicDisplay:
         self.words = mnemonic_phrase.split()
 
     def _create_word_container(self, index: int, word: str) -> ft.Container:
-        """Cria um container para uma única palavra mnemônica"""
         return ft.Container(
             content=ft.Column(
                 controls=[
@@ -26,7 +25,6 @@ class MnemonicDisplay:
         )
 
     def _create_word_columns(self) -> List[ft.Column]:
-        """Cria as duas colunas de palavras usando list comprehension"""
         word_containers = [
             self._create_word_container(i, word)
             for i, word in enumerate(self.words)
@@ -44,7 +42,6 @@ class MnemonicDisplay:
         ]
 
     def build(self) -> ft.Container:
-        """Constrói o display mnemônico completo"""
         return ft.Container(
             content=ft.Row(
                 controls=self._create_word_columns(),

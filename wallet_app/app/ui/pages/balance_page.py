@@ -1,5 +1,5 @@
 import flet as ft
-from app.ui.components import Header, BalanceDisplay
+from app.ui.components import Header, BalanceDisplay, StylizedButton
 from stellar_sdk import Server, Keypair
 from stellar_sdk.exceptions import NotFoundError, BadResponseError
 import asyncio
@@ -81,34 +81,11 @@ class BalancePage:
         )
     
     def create_verify_button(self):
-        return  ft.Container(
-            ft.ElevatedButton(
-                content=ft.Row(
-                    controls=[
-                        ft.Icon(ft.icons.ACCOUNT_BALANCE, color="#FFD700"),
-                        ft.Text("Verificar Saldo",
-                                color="#FFFFFF",
-                                size=16,
-                                weight=ft.FontWeight.BOLD,),
-                    ],
-                    alignment=ft.MainAxisAlignment.CENTER,
-                ),
-                style=ft.ButtonStyle(
-                    padding=ft.padding.all(16),
-                    shape=ft.RoundedRectangleBorder(radius=12),
-                    elevation=5,
-                ),
-                on_click=self.load_balance,
-                width=200,
-            ),
-            gradient=ft.LinearGradient(
-                begin=ft.alignment.center_left,
-                end=ft.alignment.center_right,
-                colors=["#4169E1", "#4B0082"],
-            ),
-            border_radius=12,
-            padding=2,
-        )
+        button = StylizedButton(ft.icons.ACCOUNT_BALANCE,
+                                "Verificar Saldo",
+                                self.load_balance,
+                                200)
+        return button.build()
     
     def create_content_container(self):
         return ft.Container(

@@ -1,6 +1,6 @@
 # 🌌 Nebulosa
 
-Uma carteira digital para a rede Stellar blockchain, desenvolvida em Python. Este projeto foi desenvolvido como um estudo paralelo durante o desafio da NearX, com o objetivo de aprofundar conhecimentos em desenvolvimento blockchain, Python e interfaces gráficas.
+Nebulosa é uma carteira para a rede Stellar blockchain, desenvolvida em Python. Este projeto foi desenvolvido como um estudo paralelo durante o desafio da NearX, com o objetivo de aprofundar conhecimentos em desenvolvimento blockchain, Python e interfaces gráficas.
 
 ## ✨ Funcionalidades
 

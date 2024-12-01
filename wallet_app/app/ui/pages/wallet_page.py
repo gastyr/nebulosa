@@ -28,6 +28,7 @@ class WalletPage:
         return ft.Container(
             visible=False,
             alignment=ft.alignment.center,
+            padding=ft.padding.only(bottom=20)
         )
 
     def create_content_container(self):
@@ -50,7 +51,7 @@ class WalletPage:
         button = StylizedButton(ft.icons.ADD,
                                 "Criar Nova Carteira",
                                 self.create_wallet,
-                                self.page.window.width or 0 - 40)
+                                240)
         return button.build()
         
     def build(self):

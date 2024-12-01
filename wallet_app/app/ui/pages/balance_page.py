@@ -1,5 +1,6 @@
 import flet as ft
 from app.ui.components import Header, BalanceDisplay, StylizedButton
+from app.ui.styles import ColorScheme
 from stellar_sdk import Server, Keypair
 from stellar_sdk.exceptions import NotFoundError, BadResponseError
 import asyncio
@@ -37,7 +38,7 @@ class BalancePage:
             content=ft.ProgressRing(
                 width=40,
                 height=40,
-                color=ft.colors.INDIGO_400,
+                color=ColorScheme.AURORA_BOREALIS,
             ),
             visible=False,
         )
@@ -45,7 +46,7 @@ class BalancePage:
     def create_error_container(self) -> ft.Container:
         return ft.Container(
             content=ft.Text(
-                color=ft.colors.RED_400,
+                color=ColorScheme.WARNING,
                 size=12,
             ),
             visible=False,
@@ -76,8 +77,10 @@ class BalancePage:
             hint_text="Digite sua chave Stellar",
             prefix_icon=ft.icons.KEY,
             on_submit=self.load_balance,
-            border_color=ft.colors.INDIGO_400,
-            text_size=12,
+            border_color=ColorScheme.PRIMARY,
+            color=ColorScheme.STARDUST,
+            label_style=ft.TextStyle(size=14, color=ColorScheme.STARDUST),
+            hint_style=ft.TextStyle(size=14, color=ColorScheme.STARDUST),
         )
     
     def create_verify_button(self):
@@ -218,7 +221,7 @@ class BalancePage:
             self.page.open(
                 ft.SnackBar(
                     content=ft.Text(f"Erro ao consultar saldo: {str(ex)}", color="white"),
-                    bgcolor=ft.colors.SURFACE_VARIANT,
+                    bgcolor=ColorScheme.DARK_MATTER,
                     action="OK"
                 )
             )

@@ -1,6 +1,7 @@
 import flet as ft
 from dataclasses import dataclass
-from typing import List, Tuple, Dict
+from typing import List, Dict
+from app.ui.styles import ColorScheme
 
 @dataclass
 class BalanceInfo:
@@ -11,31 +12,16 @@ class BalanceInfo:
     liquidity_pool_id: str = ''
 
 class AssetTheme:
-    COLORS: List[Tuple[str, str]] = [
-        (ft.colors.BLUE, ft.colors.BLUE_700),
-        (ft.colors.PURPLE, ft.colors.PURPLE_700),
-        (ft.colors.TEAL, ft.colors.TEAL_700),
-        (ft.colors.AMBER, ft.colors.AMBER_700),
-        (ft.colors.PINK, ft.colors.PINK_700),
-        (ft.colors.GREEN, ft.colors.GREEN_700),
-        (ft.colors.ORANGE, ft.colors.ORANGE_700),
-        (ft.colors.CYAN, ft.colors.CYAN_700),
-    ]
-
     ICONS: Dict[str, str] = {
-        'native': ft.icons.STARS,
+        'native': ft.icons.AUTO_AWESOME,
         'liquidity_pool_shares': ft.icons.CURRENCY_EXCHANGE,
         'credit_alphanum4': ft.icons.ATTACH_MONEY,
         'credit_alphanum12': ft.icons.ATTACH_MONEY,
     }
 
     @classmethod
-    def get_colors(cls, index: int) -> Tuple[str, str]:
-        return cls.COLORS[index % len(cls.COLORS)]
-
-    @classmethod
     def get_icon(cls, asset_type: str) -> str:
-        return cls.ICONS.get(asset_type, ft.icons.QUESTION_MARK)
+        return cls.ICONS.get(asset_type, ft.icons.HELP_OUTLINE)
 
 class BalanceProcessor:
     @staticmethod
@@ -79,50 +65,56 @@ class BalanceProcessor:
 class BalanceCardBuilder:
     @staticmethod
     def create_balance_card(balance: BalanceInfo, color_index: int) -> ft.Container:
-        primary_color, secondary_color = AssetTheme.get_colors(color_index)
-        
+
         return ft.Container(
-            content=ft.Column(
+            content=ft.Row(
                 controls=[
-                    BalanceCardBuilder._build_header(balance, primary_color),
-                    BalanceCardBuilder._build_balance_text(balance.balance),
-                    BalanceCardBuilder._build_additional_info(balance),
+                    BalanceCardBuilder._build_icon(balance),
+                    ft.Column(
+                        controls=[
+                            BalanceCardBuilder._build_asset_code(balance),
+                            BalanceCardBuilder._build_balance_text(balance.balance),
+                            BalanceCardBuilder._build_additional_info(balance),
+                        ],
+                        spacing=3,
+                        horizontal_alignment=ft.CrossAxisAlignment.START,
+                    ),
                 ],
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 spacing=10,
             ),
-            margin=ft.margin.only(top=10),
-            padding=20,
-            border_radius=20,
-            gradient=BalanceCardBuilder._create_gradient(secondary_color),
+            margin=ft.margin.only(bottom=8),
+            padding=ft.padding.only(left=15, right=15, top=10, bottom=10),
+            border_radius=15,
+            gradient=ColorScheme.get_card_gradient(color_index),
         )
 
     @staticmethod
-    def _build_header(balance: BalanceInfo, primary_color: str) -> ft.Row:
-        return ft.Row(
-            controls=[
-                ft.Icon(
-                    AssetTheme.get_icon(balance.asset_type),
-                    color=primary_color,
-                    size=22,
-                ),
-                ft.Text(
-                    balance.asset_code,
-                    size=18,
-                    weight=ft.FontWeight.BOLD,
-                    color=primary_color,
-                ),
-            ],
-            alignment=ft.MainAxisAlignment.CENTER,
+    def _build_icon(balance: BalanceInfo) -> ft.Container:
+        return ft.Container(
+            content=ft.Icon(
+                AssetTheme.get_icon(balance.asset_type),
+                color=ColorScheme.STARDUST,
+                size=20,
+            ),
+            padding=8,
+        )
+
+    @staticmethod
+    def _build_asset_code(balance: BalanceInfo) -> ft.Text:
+        return ft.Text(
+            balance.asset_code,
+            size=16,
+            weight=ft.FontWeight.BOLD,
+            color=ColorScheme.STARDUST,
         )
 
     @staticmethod
     def _build_balance_text(balance: float) -> ft.Text:
         return ft.Text(
             f"{balance:.7f}",
-            size=24,
-            weight=ft.FontWeight.W_700,
-            color=ft.colors.WHITE,
+            size=14,
+            weight=ft.FontWeight.BOLD,
+            color=ColorScheme.MILKY_WAY_WHITE,
         )
 
     @staticmethod
@@ -134,8 +126,7 @@ class BalanceCardBuilder:
         return ft.Text(
             info,
             size=12,
-            color=ft.colors.GREY_400,
-            text_align=ft.TextAlign.CENTER,
+            color=ColorScheme.STARDUST,
         )
 
     @staticmethod
@@ -147,17 +138,6 @@ class BalanceCardBuilder:
         elif balance.asset_issuer:
             return f"Issuer: {balance.asset_issuer[:4]}...{balance.asset_issuer[-4:]}"
         return ""
-
-    @staticmethod
-    def _create_gradient(secondary_color: str) -> ft.LinearGradient:
-        return ft.LinearGradient(
-            begin=ft.alignment.top_center,
-            end=ft.alignment.bottom_center,
-            colors=[
-                ft.colors.with_opacity(0.3, secondary_color),
-                ft.colors.with_opacity(0.1, ft.colors.SURFACE)
-            ],
-        )
 
 class BalanceDisplay:
     def __init__(self, balances: List[Dict]):
@@ -171,6 +151,7 @@ class BalanceDisplay:
                     for idx, balance in enumerate(self.balances)
                 ],
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                spacing=10,
+                spacing=8,
             ),
+            padding=ft.padding.only(left=20, right=20),
         )

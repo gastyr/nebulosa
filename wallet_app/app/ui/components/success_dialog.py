@@ -1,35 +1,6 @@
 from dataclasses import dataclass
 import flet as ft
-
-
-class NebulosaPalette:
-    PRIMARY = "#4169E1"      
-    SECONDARY = "#4B0082"    
-    ACCENT = "#FFD700"       
-    COSMIC_PURPLE = "#9B30FF"  
-    COSMIC_PINK = "#FF69B4"   
-    STARDUST = "#E6E6FA"    
-    DEEP_SPACE = "#191970"    
-    NEBULA_GLOW = "#00CED1" 
-
-    BORDER_GRADIENT = ft.LinearGradient(
-        begin=ft.alignment.top_left,
-        end=ft.alignment.bottom_right,
-        colors=[
-            COSMIC_PINK,
-            COSMIC_PURPLE,
-            NEBULA_GLOW,
-        ],
-    )
-
-    BUTTON_GRADIENT = ft.LinearGradient(
-        begin=ft.alignment.center_left,
-        end=ft.alignment.center_right,
-        colors=[
-            PRIMARY,
-            SECONDARY
-        ],
-    )
+from app.ui.styles import ColorScheme
 
 
 @dataclass
@@ -52,7 +23,7 @@ class SuccessDialog:
         return ft.Text(
             "",
             size=16,
-            color=NebulosaPalette.STARDUST,
+            color=ColorScheme.STARDUST,
             text_align=ft.TextAlign.CENTER,
             weight=ft.FontWeight.W_500,
         )
@@ -61,7 +32,7 @@ class SuccessDialog:
         return ft.Text(
             "",
             size=14,
-            color=NebulosaPalette.STARDUST,
+            color=ColorScheme.STARDUST,
             text_align=ft.TextAlign.CENTER,
             weight=ft.FontWeight.W_400,
         )
@@ -70,10 +41,10 @@ class SuccessDialog:
         return ft.ElevatedButton(
             content=ft.Row(
                 controls=[
-                    ft.Icon(ft.icons.OPEN_IN_NEW, color=NebulosaPalette.STARDUST),
+                    ft.Icon(ft.icons.OPEN_IN_NEW, color=ColorScheme.STARDUST),
                     ft.Text(
                         "Stellar Expert",
-                        color=NebulosaPalette.STARDUST,
+                        color=ColorScheme.STARDUST,
                         size=14,
                         weight=ft.FontWeight.BOLD,
                     ),
@@ -120,7 +91,7 @@ class SuccessDialog:
                     ft.Text(
                         "Hash da Transação",
                         size=16,
-                        color=NebulosaPalette.COSMIC_PURPLE,
+                        color=ColorScheme.COSMIC_PURPLE,
                         weight=ft.FontWeight.BOLD,
                     ),
                     ft.Container(
@@ -141,7 +112,7 @@ class SuccessDialog:
         return ft.Container(
             content=self._explorer_button,
             margin=ft.margin.only(bottom=20, top=20),
-            gradient=NebulosaPalette.BUTTON_GRADIENT,
+            gradient=ColorScheme.BUTTON_GRADIENT,
             border_radius=30,
         )
     
@@ -171,14 +142,14 @@ class SuccessDialog:
                     "Copiar Hash",
                     on_click=lambda _: self._handle_copy(),
                     style=ft.ButtonStyle(
-                        color={"": NebulosaPalette.STARDUST}
+                        color={"": ColorScheme.STARDUST}
                     ),
                 ),
                 ft.TextButton(
                     "Fechar",
                     on_click=lambda _: self.hide(),
                     style=ft.ButtonStyle(
-                        color={"": NebulosaPalette.STARDUST}
+                        color={"": ColorScheme.STARDUST}
                     ),
                 ),
             ],
@@ -190,7 +161,7 @@ class SuccessDialog:
         inner_content = self._create_content()
         outer_content = ft.Container(
             content=inner_content,
-            gradient=NebulosaPalette.BORDER_GRADIENT,
+            gradient=ColorScheme.BORDER_GRADIENT,
             padding=ft.padding.all(2),
             border_radius=12,
         )

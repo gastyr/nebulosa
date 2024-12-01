@@ -1,5 +1,6 @@
 import flet as ft
 from app.ui.components import Header, SuccessDialog, SuccessDialogData, StylizedButton
+from app.ui.styles import ColorScheme
 from stellar_sdk import (
     Server, Keypair, TransactionBuilder, Network, Asset,
     Account, exceptions
@@ -139,9 +140,10 @@ class TransferPage:
             label=label,
             hint_text=hint,
             prefix_icon=icon,
-            border_color="#4169E1",
-            label_style=ft.TextStyle(size=14),
-            hint_style=ft.TextStyle(size=14),
+            border_color=ColorScheme.PRIMARY,
+            color=ColorScheme.STARDUST,
+            label_style=ft.TextStyle(size=14, color=ColorScheme.STARDUST),
+            hint_style=ft.TextStyle(size=14, color=ColorScheme.STARDUST),
         )
     
     def _create_number_field(self) -> ft.TextField:
@@ -149,9 +151,10 @@ class TransferPage:
             label="Quantidade",
             hint_text="Digite a quantidade a ser transferida",
             prefix_icon=ft.icons.ATTACH_MONEY,
-            border_color="#4169E1",
-            label_style=ft.TextStyle(size=14),
-            hint_style=ft.TextStyle(size=14),
+            border_color=ColorScheme.PRIMARY,
+            color=ColorScheme.STARDUST,
+            label_style=ft.TextStyle(size=14, color=ColorScheme.STARDUST),
+            hint_style=ft.TextStyle(size=14, color=ColorScheme.STARDUST),
             keyboard_type=ft.KeyboardType.NUMBER,
         )
     
@@ -160,9 +163,10 @@ class TransferPage:
             label="Chave Privada",
             hint_text="Digite sua chave privada",
             prefix_icon=ft.icons.SECURITY,
-            border_color="#4169E1",
-            label_style=ft.TextStyle(size=14),
-            hint_style=ft.TextStyle(size=14),
+            border_color=ColorScheme.PRIMARY,
+            color=ColorScheme.STARDUST,
+            label_style=ft.TextStyle(size=14, color=ColorScheme.STARDUST),
+            hint_style=ft.TextStyle(size=14, color=ColorScheme.STARDUST),
             password=True,
             can_reveal_password=True,
         )
@@ -174,9 +178,10 @@ class TransferPage:
             options=[
                 ft.dropdown.Option("XLM (Nativo)"),
             ],
-            border_color="#4169E1",
-            label_style=ft.TextStyle(size=14),
-            hint_style=ft.TextStyle(size=14),
+            border_color=ColorScheme.PRIMARY,
+            color=ColorScheme.STARDUST,
+            label_style=ft.TextStyle(size=14, color=ColorScheme.STARDUST),
+            hint_style=ft.TextStyle(size=14, color=ColorScheme.STARDUST),
             value="XLM (Nativo)",
         )
     
@@ -195,7 +200,7 @@ class TransferPage:
             content=ft.ProgressRing(
                 width=40,
                 height=40,
-                color="#4169E1",
+                color=ColorScheme.AURORA_BOREALIS,
             ),
             visible=False,
         )
@@ -203,7 +208,7 @@ class TransferPage:
     def _create_error_container(self) -> ft.Container:
         return ft.Container(
             content=ft.Text(
-                color=ft.colors.RED_400,
+                color=ColorScheme.WARNING,
                 size=12,
             ),
             visible=False,

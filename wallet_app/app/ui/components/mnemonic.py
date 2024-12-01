@@ -1,44 +1,50 @@
 import flet as ft
 from typing import List
+from app.ui.styles import ColorScheme
 
 class MnemonicDisplay:
     def __init__(self, mnemonic_phrase: str):
         self.words = mnemonic_phrase.split()
 
     def _create_word_container(self, index: int, word: str) -> ft.Container:
-        return ft.Container(
+        inner_content = ft.Container(
             content=ft.Column(
                 controls=[
-                    ft.Text(f"#{index + 1}", size=12, color=ft.colors.GREY_400, weight=ft.FontWeight.BOLD),
-                    ft.Text(word, size=14, color=ft.colors.WHITE, weight=ft.FontWeight.W_500)
+                    ft.Text(f"#{index + 1}", size=12, color=ColorScheme.CRIMSON_COMET, weight=ft.FontWeight.BOLD),
+                    ft.Text(word, size=14, color=ColorScheme.STARDUST, weight=ft.FontWeight.W_500)
                 ],
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 spacing=4
             ),
-            bgcolor=ft.colors.BLUE_GREY_900,
+            bgcolor=ft.colors.with_opacity(0.4, ColorScheme.STELLAR_INDIGO),
             border_radius=8,
-            padding=ft.padding.all(12),
-            margin=ft.margin.all(4),
-            width=160,
-            height=70,
+            padding=ft.padding.all(10),
+            height=65,
             alignment=ft.alignment.center,
         )
 
+        return ft.Container(
+            content=inner_content,
+            gradient=ColorScheme.WORD_LIGHT,
+            border_radius=8,
+        )
+
     def _create_word_columns(self) -> List[ft.Column]:
-        word_containers = [
-            self._create_word_container(i, word)
-            for i, word in enumerate(self.words)
-        ]
-        
+        column_count = 3
+        columns = [[] for _ in range(column_count)]
+
+        for index, word in enumerate(self.words):
+            column_index = index % column_count
+            columns[column_index].append(self._create_word_container(index, word))
+
         return [
             ft.Column(
-                controls=word_containers[:len(self.words)//2],
-                alignment=ft.MainAxisAlignment.CENTER
-            ),
-            ft.Column(
-                controls=word_containers[len(self.words)//2:],
-                alignment=ft.MainAxisAlignment.CENTER
+                controls=column,
+                alignment=ft.MainAxisAlignment.CENTER,
+                spacing=15,
+                expand=True
             )
+            for column in columns
         ]
 
     def build(self) -> ft.Container:
@@ -46,8 +52,8 @@ class MnemonicDisplay:
             content=ft.Row(
                 controls=self._create_word_columns(),
                 alignment=ft.MainAxisAlignment.CENTER,
-                spacing=10,
+                spacing=15,
+                expand=True
             ),
-            padding=ft.padding.all(16),
             alignment=ft.alignment.center,
         )

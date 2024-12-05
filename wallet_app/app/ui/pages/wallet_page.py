@@ -1,37 +1,40 @@
 import flet as ft
-from stellar_sdk import Keypair
+from app.core.services import generate_wallet
 from app.ui.components import Header, KeyCards, MnemonicDisplay, StylizedButton
 import asyncio
+from typing import Dict
+from app.ui.styles import ColorScheme
+
 
 class WalletPage:
-    def __init__(self, page: ft.Page):
+    def __init__(self, page: ft.Page) -> None:
         self.page = page
         self.header = Header(page.window.width)
         self.key_cards = KeyCards(self)
-        self.current_keypair = None
         self.setup_components()
 
-    def setup_components(self):
-        self.loading = self.create_loading_ring()
+    def setup_components(self) -> None:
+        self.loading = self._create_loading_indicator()
         self.mnemonic_container = self.create_mnemonic_container()
 
-    def create_loading_ring(self):
+    def _create_loading_indicator(self) -> ft.Container:
         return ft.Container(
             content=ft.ProgressRing(
-            width=40,
-            height=40
+                width=40,
+                height=40,
+                color=ColorScheme.AURORA_BOREALIS,
             ),
             visible=False,
         )
     
-    def create_mnemonic_container(self):
+    def create_mnemonic_container(self) -> ft.Container:
         return ft.Container(
             visible=False,
             alignment=ft.alignment.center,
             padding=ft.padding.only(bottom=20)
         )
 
-    def create_content_container(self):
+    def create_content_container(self) -> ft.Container:
         return ft.Container(
             content=ft.Column(
                 controls=[
@@ -47,14 +50,14 @@ class WalletPage:
             padding=20,
         )
 
-    def create_wallet_button(self):
+    def create_wallet_button(self) -> ft.Container:
         button = StylizedButton(ft.icons.ADD,
                                 "Criar Nova Carteira",
                                 self.create_wallet,
                                 240)
         return button.build()
         
-    def build(self):
+    def build(self) -> ft.Container:
         return ft.Container(
             content=ft.Column(
                 controls=[
@@ -66,23 +69,21 @@ class WalletPage:
             width=self.page.window.width,
         )
     
-    async def create_wallet_async(self):
-        await asyncio.sleep(1)
-        return Keypair.random()
+    def _update_wallet_ui(self, wallet_data: Dict[str, str]) -> None:
+        self.key_cards.update_public_key(wallet_data["public_key"])
+        self.key_cards.update_private_key(wallet_data["private_key"])
+        mnemonic_display = MnemonicDisplay(wallet_data["mnemonic"])
+        self.mnemonic_container.content = mnemonic_display.build()
+        self.page.update()
 
-    async def _async_wallet_creation(self, e):
+    async def _async_wallet_creation(self, e: ft.ControlEvent) -> None:
         try:
-            self.current_keypair = await self.create_wallet_async()
-            self.key_cards.update_public_key(self.current_keypair.public_key)
-            self.key_cards.update_private_key(self.current_keypair.secret)
-            mnemonic_phrase = self.current_keypair.generate_mnemonic_phrase()
-            mnemonic_display = MnemonicDisplay(mnemonic_phrase)
-            self.mnemonic_container.content = mnemonic_display.build()
-            self.page.update()
+            wallet_data = await generate_wallet()
+            self._update_wallet_ui(wallet_data)
             self.page.open(
                 ft.SnackBar(
-                    content=ft.Text("Carteira criada com sucesso!", color="white"),
-                    bgcolor=ft.colors.SURFACE_VARIANT,
+                    content=ft.Text("Carteira criada com sucesso!", color=ColorScheme.STARDUST),
+                    bgcolor=ColorScheme.DARK_MATTER,
                     action="OK"
                 )
             )
@@ -90,8 +91,8 @@ class WalletPage:
         except Exception as ex:
             self.page.open(
                 ft.SnackBar(
-                    content=ft.Text(f"Erro ao criar carteira: {str(ex)}", color="white"),
-                    bgcolor=ft.colors.SURFACE_VARIANT,
+                    content=ft.Text(f"Erro ao criar carteira: {str(ex)}", color=ColorScheme.STARDUST),
+                    bgcolor=ColorScheme.DARK_MATTER,
                     action="OK"
                 )
             )
@@ -101,7 +102,7 @@ class WalletPage:
             self.mnemonic_container.visible = True
             self.page.update()
     
-    def create_wallet(self, e):
+    def create_wallet(self, e) -> None:
         e.control.disabled = True
         self.loading.visible = True
         self.page.update()

@@ -5,7 +5,6 @@ from app.ui.styles import ColorScheme
 
 @dataclass
 class SuccessDialogData:
-    title: str
     message: str
     hash: str = ""
 
@@ -58,6 +57,7 @@ class SuccessDialog:
                 bgcolor=ft.colors.TRANSPARENT,
                 elevation={"pressed": 0, "": 0},
             ),
+            on_click=lambda _: self.hide()
         )
 
     def _create_status_icon(self) -> ft.Container:
@@ -108,7 +108,7 @@ class SuccessDialog:
         )
 
 
-    def _create_stellar_button(self, label: str) -> ft.Container:
+    def _create_button_container(self) -> ft.Container:
         return ft.Container(
             content=self._explorer_button,
             margin=ft.margin.only(bottom=20, top=20),
@@ -123,7 +123,7 @@ class SuccessDialog:
                     self._create_status_icon(),
                     self._create_message_section(),
                     self._create_hash_section(),
-                    self._create_stellar_button("Stelar Expert"),
+                    self._create_button_container(),
                     self._create_action_buttons(),
                 ],
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -181,9 +181,11 @@ class SuccessDialog:
         self.hide()
 
     def _get_stellar_expert_url(self, hash: str) -> str:
-        return f"https://stellar.expert/explorer/public/tx/{hash}"
+        self.hide()
+        return f"https://stellar.expert/explorer/public/tx/{hash}"    
     
     def _get_stellar_explorer_url(self, hash: str) -> str:
+        self.hide()
         return f"https://stellarchain.io/transactions/{hash}"
 
     def update(self, data: SuccessDialogData) -> None:

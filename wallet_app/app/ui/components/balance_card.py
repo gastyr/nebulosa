@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import List, Dict
 from app.ui.styles import ColorScheme
 
+
 @dataclass
 class BalanceInfo:
     asset_code: str
@@ -72,12 +73,18 @@ class BalanceCardBuilder:
                     BalanceCardBuilder._build_icon(balance),
                     ft.Column(
                         controls=[
-                            BalanceCardBuilder._build_asset_code(balance),
-                            BalanceCardBuilder._build_balance_text(balance.balance),
+                            ft.Row(
+                                controls=[
+                                    BalanceCardBuilder._build_asset_code(balance),
+                                    BalanceCardBuilder._build_balance_text(balance.balance),
+                                ],
+                                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                            ),
                             BalanceCardBuilder._build_additional_info(balance),
                         ],
                         spacing=3,
                         horizontal_alignment=ft.CrossAxisAlignment.START,
+                        expand=True,
                     ),
                 ],
                 spacing=10,
@@ -113,7 +120,7 @@ class BalanceCardBuilder:
         return ft.Text(
             f"{balance:.7f}",
             size=14,
-            weight=ft.FontWeight.BOLD,
+            weight=ft.FontWeight.W_600,
             color=ColorScheme.MILKY_WAY_WHITE,
         )
 
@@ -125,7 +132,7 @@ class BalanceCardBuilder:
             
         return ft.Text(
             info,
-            size=12,
+            size=11,
             color=ColorScheme.STARDUST,
         )
 
